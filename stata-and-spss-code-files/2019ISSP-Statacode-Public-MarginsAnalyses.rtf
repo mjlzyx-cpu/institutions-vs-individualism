@@ -1,0 +1,184 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 CourierNewPSMT;\f2\fmodern\fcharset0 Courier;
+}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww13780\viewh14720\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 * Stata script file for public repository\
+*\
+* Article: "Support for Government and Market Actors to Reduce Economic Inequality Outweighs \
+* Norms of Individual Responsibility Worldwide" by A. Lindh, L. McCall, J. Edlund, B. J. Roberts, \
+* R. Gonz\'e1lez, B. Milne, S. \'d3lafsd\'f3ttir, M. Sapin, and J. C. Castillo. \
+*\
+* Code for: Figure 6 and Figures S4, S5 (in SM E) and Figure S6 (in SM F)\
+* Data files used: data are coded in R and then a dta file is written/saved within R\
+* relevant R code is provided in the R code files for the relevant figures\
+\
+***********************************************************************************************************\
+* preprocessing to recover can\'92t choose responses\
+* convert missing values to valid values\
+* first read in GSS2021.dta\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1 \cf0 gen inequal6m = inequal6\
+gen inequal5m = inequal5\
+gen trdunio1m = trdunio1\
+gen limitpaym = limitpay\
+gen boardrepm = boardrep\
+gen upwagesm = upwages\
+gen respineqm = respineq\
+gen eqwlthm = eqwlth\
+gen buseqincm = buseqinc\
+\
+mvencode inequal6m inequal5m trdunio1m limitpaym boardrepm upwagesm respineqm eqwlthm buseqincm, mv(.d=10 \\ .s=11)\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0 \cf0 \
+* saved file with name GSS2021-correctmissing.dta\
+* this file is read into R to recode variables; see R code file \'93ISSP2019-Rcode-Public-FigureS6.R\'94\
+* a dta file is then created in R and read back into Stata for margins analyses \
+\
+* Article Figure S6: margins analyses with can\'92t choose option included\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1 \cf0 regress intervention4 i.respineq2_fac i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR [pw=wtssnrps]\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1 \cf0 margins, at(respineq2_fac=(1(1)7))\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0 \cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f1 \cf0 regress marketideol i.respineq2_fac i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR [pw=wtssnrps]\
+\
+margins, at(respineq2_fac=(1(1)7))
+\f0 \
+\
+
+\f1 * test significant differences from individual respineq (FC) options\
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 recode respineq2_fac (5=0) (6=0) (7=5), gen(respineq2_fac_individ)\
+\
+regress marketideol i.respineq2_fac_individ i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR [pw=wtssnrps]\
+\
+regress intervention4 i.respineq2_fac_individ i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR [pw=wtssnrps]\
+\
+**********************************************************************\
+\
+
+\f0 * Article Figures 6: margins analyses with can\'92t choose option set to missing for main text\
+* also Figure S4 in SM E
+\f1 \
+\
+*** GSS data for US analyses\
+\
+* analysis with original 4-item market intervention index and market ideology index\
+* and new sub indices for gov and market interventions\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 * results without can't choose option\
+\
+regress intervention4 i.respineq2_fac i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR if respineq2_fac != 7 [pw=wtssnrps]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+regress marketideol i.respineq2_fac i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR if respineq2_fac != 7 [pw=wtssnrps]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\pard\pardeftab720\partightenfactor0
+\cf0 \
+** replicate with sub intervention indices\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+regress intervention2g i.respineq2_fac i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR if respineq2_fac != 7 [pw=wtssnrps]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+regress intervention2m i.respineq2_fac i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR if respineq2_fac != 7 [pw=wtssnrps]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+* test significant differences from individual resp options\
+* all p\'92s <= 0.02 (only one at 0.02, otherwise <.001)\
+\
+\pard\pardeftab720\partightenfactor0
+\cf0 recode respineq2_fac (5=0) (6=0) (7=5), gen(respineq2_fac_individ)\
+\
+regress intervention2g i.respineq2_fac_individ i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR [pw=wtssnrps]\
+\
+regress intervention2m i.respineq2_fac_individ i.partyid_3cat i.race_6cat i.finc_4cat i.degree_2cat age i.sexR [pw=wtssnrps]\
+\
+*** ISSP data for 6 non-US countries\
+\
+regress marketideol i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.country2 [pw=weight]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+regress intervention4 i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.country2 [pw=weight]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+regress intervention2g i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.country2 [pw=weight]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+regress intervention2m i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.country2 [pw=weight]\
+\
+margins, at(respineq2_fac=(1(1)6))
+\f2 \
+
+\f1 \
+*******************************************************************\
+\
+
+\f0 * Article Figure S5 (in SM E): margins analyses with government unemployment benefits as the outcome\
+* can\'92t choose option is set to missing for main text and related SM analyses
+\f1 \
+\
+*** GSS data for US analyses\
+\
+* note that weight = wtssnrps\
+\
+drop govunempRev\
+recode govunemp (5=0) (4=.25) (3=.50) (2=.75) (1=1), gen(govunempRev)\
+\
+regress govunempRev i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.race_6cat [pw=weight]\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+*** ISSP analyses with govunemp \
+\
+recode govunemp (5=0) (4=.25) (3=.50) (2=.75) (1=1), gen(govunempRev)\
+\
+* US\
+regress govunempRev i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR [pw=weight] if country==840\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+* non US\
+regress govunempRev i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.country2 [pw=weight] if country!=840\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+* Switzerland and New Zealand\
+regress govunempRev i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.country2 [pw=weight] if inlist(country,554,756)\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+* Switzerland and New Zealand, compare to 4-item intervention index\
+regress intervention4 i.respineq2_fac i.partyid_3cat i.finc_4cat i.degree_2cat age i.sexR i.country2 [pw=weight] if inlist(country,554,756)\
+\
+margins, at(respineq2_fac=(1(1)6))\
+\
+\
+\
+}
